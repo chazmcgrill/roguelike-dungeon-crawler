@@ -5,9 +5,10 @@ import StartScreen from './StartScreen';
 import Header from './Header';
 import '../styles/App.sass';
 
-import { _random, _findIndex } from '../helpers/helpers';
+import { _random } from '../helpers/helpers';
 import { TILE, PLAYER_INIT, WEAPONS } from '../globals/game';
 import { MAPS } from '../globals/maps';
+import { createEmptyGrid, getIdsForRooms, createEnemyObjects, getEmptyFloorTileId } from '../utils';
 
 interface AppState {
     grid: GridItem[];
@@ -25,7 +26,7 @@ export interface Player {
     nextLevel: number;   
 }
 
-interface Enemy {
+export interface Enemy {
     id: number;
     strength: number;
     health: number;
@@ -36,6 +37,8 @@ interface Enemy {
 export interface GridItem {
     id: number;
     tile: number;
+    row: number;
+    col: number;
 }
 
 class App extends Component<{}, AppState> {
@@ -62,65 +65,33 @@ class App extends Component<{}, AppState> {
         window.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    createDungeon(mapNo: number): void {
-        let { grid } = this.state;
-        const level = MAPS[mapNo];
-
-        // update the state of the tiles from indexs
-        let idArray: number[] = [];
-        level.rooms.forEach(room => {
-            const startPoint = _findIndex(room.x1, room.y1, level.width);
-            const endPoint = _findIndex(room.x2, room.y2, level.width);
-            const width = room.x2 - room.x1 + 1;
-
-            // loop through tiles adjust the row if width reached
-            for (let i = startPoint, count = 0; i <= endPoint; i++) {
-                count++;
-                idArray.push(i);
-                i = count % (width) === 0 ? i + level.width - (width) : i;
-            }
-        });
-
-        // create enemies
-        const enemies = Array.apply(null, Array(level.enemies)).map((e, index) => (
-            {
-                id: index,
-                strength: _random(10, level.enemyStrength),
-                health: 100,
-                alive: true,
-                tileId: 0,
-            }
-        ));
+    createDungeon = (mapNo: number): void => {
+        const currentMap = MAPS[mapNo];
+        let floorIdArray = getIdsForRooms(currentMap);
+        const enemies = createEnemyObjects(currentMap);
 
         // add the tunnels
-        idArray = idArray.concat(level.tunnels);
+        floorIdArray = floorIdArray.concat(currentMap.tunnels);
 
         // create the new state with updated tiles
-        grid = grid.map((gridItem, index) => {
-            let tile = TILE.WALL
-            if (idArray.includes(gridItem.id)) tile = TILE.FLOOR;
+        const grid = this.state.grid.map((gridItem) => {
+            const tile = floorIdArray.includes(gridItem.id) ? TILE.FLOOR : TILE.WALL;
             return { ...gridItem, tile }
         });
 
-        // recursive function that finds a random empty square
-        const assignId = (): number => {
-            const id = idArray[_random(0, idArray.length - 1)];
-            return grid[id].tile === TILE.FLOOR ? id : assignId();
-        }
-
-        const items = [TILE.PLAYER].concat(level.items);
+        const items = [TILE.PLAYER].concat(currentMap.items);
         let playerPosition = 0;
 
         // iterate over items if player store the index.
         items.forEach(item => {
-            const index = assignId();
+            const index = getEmptyFloorTileId(floorIdArray, grid);
             grid[index].tile = item;
             if (item === TILE.PLAYER) playerPosition = index;
         });
 
         // iterate over enemies array assign location and set tile
         enemies.forEach((item, i) => {
-            const index = assignId();
+            const index = getEmptyFloorTileId(floorIdArray, grid);
             grid[index].tile = TILE.ENEMY;
             enemies[i].tileId = index;
         });
@@ -130,16 +101,16 @@ class App extends Component<{}, AppState> {
 
     handleKeyDown = (e: KeyboardEvent): void => {
         const key = e.keyCode;
-        const level = MAPS[this.state.mapNo];
+        const currentMap = MAPS[this.state.mapNo];
         let { player } = this.state;
 
         if (key >= 37 && key <= 40) {
             let { playerPosition, grid } = this.state;
             const keyCodes = {
                 37: playerPosition - 1,
-                38: playerPosition - level.width,
+                38: playerPosition - currentMap.width,
                 39: playerPosition + 1,
-                40: playerPosition + level.width,
+                40: playerPosition + currentMap.width,
             } as { [key: number]: number};
 
             const nextSpot = keyCodes[key];
@@ -174,7 +145,7 @@ class App extends Component<{}, AppState> {
                     return;
                 }
 
-                player.level += level.xpShift;
+                player.level += currentMap.xpShift;
 
                 playerPosition = nextSpot;
 
@@ -189,51 +160,30 @@ class App extends Component<{}, AppState> {
             }
 
             // update the grid with new player position
-            grid = grid.map(t => {
-                let tile = t.tile;
+            grid = grid.map(gridItem => {
+                let tile = gridItem.tile;
 
-                if (t.id === playerPosition) {
+                if (gridItem.id === playerPosition) {
                     tile = TILE.PLAYER;
-                } else if (t.tile === TILE.PLAYER) {
+                } else if (gridItem.tile === TILE.PLAYER) {
                     tile = TILE.FLOOR;
                 }
 
-                return { ...t, tile };
+                return { ...gridItem, tile };
             });
 
             this.setState({ grid, playerPosition, player });
         }
     }
 
-    // method that initiates a new game
-    gameInit() {
-        const mapNo = 0;
-        const width = MAPS[mapNo].width;
-        const height = MAPS[mapNo].height;
-
-        // create the empty grid according to map size
-        const grid = Array.apply(null, Array(height * width)).map((cell, idx) => {
-            const col = idx % width;
-            const row = Math.floor(idx / width);
-            return { id: idx, tile: TILE.WALL, row, col };
-        });
-
-        // assign player data to new varible
-        const player = Object.assign({}, PLAYER_INIT);
-
-        // set the state with empty grid and player data then create dungeon
-        this.setState({ grid, player }, () => {
-            this.createDungeon(mapNo)
-        });
+    gameInit = (): void => {
+        const mapNumber = 0;
+        const grid = createEmptyGrid(mapNumber);
+        this.setState({ grid, player: { ...PLAYER_INIT } }, () => this.createDungeon(mapNumber));
     }
 
     render() {
         const { gameOpen, grid, player} = this.state;
-        const board = !gameOpen ? (
-            <StartScreen handleStartClick={() => this.setState({ gameOpen: true })} />
-        ) : (
-            <DungeonBoard dsGrid={grid} />
-        );
 
         return (
             <div>
@@ -243,7 +193,11 @@ class App extends Component<{}, AppState> {
                     weapon={WEAPONS[player.weaponIndex]}
                 />
                 <div className="dungeon-board">
-                    {board}
+                    {!gameOpen ? (
+                        <StartScreen handleStartClick={() => this.setState({ gameOpen: true })} />
+                    ) : (
+                        <DungeonBoard dsGrid={grid} />
+                    )}
                 </div>
 
                 <p className="footer">coded by <a href="https://www.charlietaylorcoder.com">charlie taylor</a></p>

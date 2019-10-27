@@ -12,9 +12,7 @@ const Tile = (props: TileProps) => {
     const tileClass = `tile ${TILE_SETUP[tile].name}`;
     const tileColor = TILE_SETUP[tile].color;
 
-    return (
-        <div className={tileClass} style={{ background: tileColor }}>{id}</div>
-    )
+    return <div className={tileClass} style={{ background: tileColor }}>{id}</div>;
 }
 
 export default Tile;

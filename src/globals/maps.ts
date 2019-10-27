@@ -1,5 +1,25 @@
 import { TILE } from './game';
 
+export interface LevelMap {
+    level: number;
+    rooms: Room[];
+    tunnels: number[];
+    items: number[];
+    enemies: number;
+    enemyStrength: number;
+    xpShift: number;
+    width: number;
+    height: number;
+}
+
+interface Room {
+    id: number;
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+}
+
 export const MAPS = [
     {
         level: 0,

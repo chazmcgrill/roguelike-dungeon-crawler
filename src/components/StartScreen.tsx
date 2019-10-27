@@ -9,6 +9,6 @@ const StartScreen = (props: StartScreenProps) => (
         <p>Navigate the dungeon using the arrow keys.</p>
         <button onClick={props.handleStartClick} >Start Game</button>
     </Fragment>
-)
+);
 
 export default StartScreen;

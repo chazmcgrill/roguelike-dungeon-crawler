@@ -1,5 +1,5 @@
 import React from 'react';
-import './DungeonStatus.sass';
+import '../styles/DungeonStatus.sass';
 import { Weapon } from '../globals/game';
 import { Player } from './App';
 

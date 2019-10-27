@@ -1,5 +1,5 @@
 import React from 'react';
-import './Header.sass';
+import '../styles/Header.sass';
 
 interface HeaderProps {
     newGameClick: () => void;

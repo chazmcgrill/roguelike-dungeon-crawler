@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import Tile from './Tile'
-import './DungeonBoard.sass';
+import '../styles/DungeonBoard.sass';
 import { GridItem } from './App';
 
 interface DungeonBoardProps {

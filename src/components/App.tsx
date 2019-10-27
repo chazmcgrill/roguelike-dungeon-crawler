@@ -3,7 +3,7 @@ import DungeonStatus from './DungeonStatus';
 import DungeonBoard from './DungeonBoard';
 import StartScreen from './StartScreen';
 import Header from './Header';
-import './App.sass';
+import '../styles/App.sass';
 
 import { _random, _findIndex } from '../helpers/helpers';
 import { TILE, PLAYER_INIT, WEAPONS } from '../globals/game';

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Tile.sass';
+import '../styles/Tile.sass';
 import { GridItem } from './App';
 import { TILE_SETUP } from '../globals/game';
 

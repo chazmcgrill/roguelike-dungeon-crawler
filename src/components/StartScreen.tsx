@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import Button from './Button';
 
 interface StartScreenProps {
     handleStartClick: () => void;
@@ -7,7 +8,7 @@ interface StartScreenProps {
 const StartScreen = (props: StartScreenProps) => (
     <Fragment>
         <p>Navigate the dungeon using the arrow keys.</p>
-        <button onClick={props.handleStartClick} >Start Game</button>
+        <Button label="Start Game" handleClick={props.handleStartClick} />
     </Fragment>
 );
 

@@ -1,18 +1,27 @@
 import React from 'react';
-import '../styles/Header.sass';
+import styled from 'styled-components';
+import Button from './Button';
 
 interface HeaderProps {
     newGameClick: () => void;
 }
 
 const Header = (props: HeaderProps) => (
-    <header>
-        <h1>Roguelike Dungeon Crawler</h1>
+    <HeaderSection>
+        <HeaderTitle>Roguelike Dungeon Crawler</HeaderTitle>
         <nav>
-            <button onClick={props.newGameClick}>New Game</button>
-            <button>Show Dungeon</button>
+            <Button label="New Game" handleClick={props.newGameClick} />
+            <Button label="Show Dungeon" handleClick={() => {}} />
         </nav>
-    </header>
+    </HeaderSection>
 )
 
 export default Header;
+
+const HeaderSection = styled.header`
+    margin-bottom: 10px;
+`;
+
+const HeaderTitle = styled.h1`
+    margin-bottom: 10px;
+`;

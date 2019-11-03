@@ -1,18 +1,30 @@
 import React from 'react';
-import '../styles/Tile.sass';
 import { GridItem } from './App';
 import { TILE_SETUP } from '../globals/game';
+import styled from 'styled-components';
+
+const TileSquare = styled.div<TileSquareProps>`
+    background-color: ${props => props.tileColor};
+    height: 28px;
+    width: 28px;
+    font-size: .5rem;
+    float: left;
+    border: 1px solid black;
+`;
 
 interface TileProps {
     tileData: GridItem;
 }
 
+interface TileSquareProps {
+    tileColor: string;
+}
+
 const Tile = (props: TileProps) => {
     const { tile, id } = props.tileData;
-    const tileClass = `tile ${TILE_SETUP[tile].name}`;
     const tileColor = TILE_SETUP[tile].color;
 
-    return <div className={tileClass} style={{ background: tileColor }}>{id}</div>;
+    return <TileSquare tileColor={tileColor}>{id}</TileSquare>;
 }
 
 export default Tile;

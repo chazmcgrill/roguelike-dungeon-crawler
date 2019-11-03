@@ -1,18 +1,25 @@
-import React, { Fragment } from 'react';
-import Tile from './Tile'
-import '../styles/DungeonBoard.sass';
+import React from 'react';
+import Tile from './Tile';
 import { GridItem } from './App';
+import styled from 'styled-components';
 
 interface DungeonBoardProps {
     dsGrid: GridItem[];
 }
 
 const DungeonBoard = (props: DungeonBoardProps) => (
-    <Fragment>
+    <DungeonBoardWrapper>
         {props.dsGrid.map(item => (
             <Tile tileData={item} key={item.id} />
         ))}
-    </Fragment>
-)
+    </DungeonBoardWrapper>
+);
 
 export default DungeonBoard;
+
+const DungeonBoardWrapper = styled.div`
+    height: 600px
+    width: 600px
+    border: 2px solid black
+    margin: 30px auto
+`;

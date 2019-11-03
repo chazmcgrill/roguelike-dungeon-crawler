@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import DungeonStatus from './DungeonStatus';
 import DungeonBoard from './DungeonBoard';
 import StartScreen from './StartScreen';
 import Header from './Header';
-import '../styles/App.sass';
 
 import { _random } from '../helpers/helpers';
 import { TILE, PLAYER_INIT, WEAPONS } from '../globals/game';
 import { MAPS } from '../globals/maps';
 import { createEmptyGrid, getIdsForRooms, createEnemyObjects, getEmptyFloorTileId } from '../utils';
+import Footer from './Footer';
 
 interface AppState {
     grid: GridItem[];
@@ -186,22 +186,19 @@ class App extends Component<{}, AppState> {
         const { gameOpen, grid, player} = this.state;
 
         return (
-            <div>
+            <Fragment>
                 <Header newGameClick={() => this.gameInit()} />
                 <DungeonStatus
                     status={player}
                     weapon={WEAPONS[player.weaponIndex]}
                 />
-                <div className="dungeon-board">
-                    {!gameOpen ? (
-                        <StartScreen handleStartClick={() => this.setState({ gameOpen: true })} />
-                    ) : (
-                        <DungeonBoard dsGrid={grid} />
-                    )}
-                </div>
 
-                <p className="footer">coded by <a href="https://www.charlietaylorcoder.com">charlie taylor</a></p>
-            </div>
+                {!gameOpen && <StartScreen handleStartClick={() => this.setState({ gameOpen: true })} />}
+
+                <DungeonBoard dsGrid={grid} />
+
+                <Footer />
+            </Fragment>
         )
     }
 }

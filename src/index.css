@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html {
+    text-align: center;
+    font-family: 'Roboto';
+    font-size: 20px;
+    letter-spacing: 0.2px;
+    height: 100%;
+    color: #0f0f0f;
+}
+
+body {
+    background: #ddd;
+    margin: 0;
+    padding: 0 20px;
+}

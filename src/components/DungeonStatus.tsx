@@ -3,6 +3,28 @@ import { Weapon } from '../globals/game';
 import { Player } from './App';
 import styled from 'styled-components';
 
+const StatusBar = styled.div`
+    display: flex;
+    align-items: center;
+    max-width: 700px;
+    margin: 0 auto;
+`;
+
+const StatusItem = styled.div`
+    flex-direction: column;
+    flex: 1;
+    padding: 10px;
+`;
+
+const StatusTitle = styled.div`
+    font-size: 10px;
+    text-transform: uppercase;
+`;
+
+const StatusValue = styled.div`
+
+`;
+
 interface DungeonStatusProps {
     status: Player;
     weapon: Weapon;
@@ -38,24 +60,4 @@ const DungeonStatus = ({
 
 export default DungeonStatus;
 
-const StatusBar = styled.div`
-    display: flex;
-    align-items: center;
-    max-width: 700px;
-    margin: 0 auto;
-`;
 
-const StatusItem = styled.div`
-    flex-direction: column;
-    flex: 1;
-    padding: 10px;
-`;
-
-const StatusTitle = styled.div`
-    font-size: 10px;
-    text-transform: uppercase;
-`;
-
-const StatusValue = styled.div`
-
-`;

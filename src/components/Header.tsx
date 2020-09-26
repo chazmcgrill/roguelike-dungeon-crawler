@@ -6,6 +6,14 @@ interface HeaderProps {
     newGameClick: () => void;
 }
 
+const HeaderSection = styled.header`
+    margin-bottom: 10px;
+`;
+
+const HeaderTitle = styled.h1`
+    margin-bottom: 10px;
+`;
+
 const Header = (props: HeaderProps) => (
     <HeaderSection>
         <HeaderTitle>Roguelike Dungeon Crawler</HeaderTitle>
@@ -18,10 +26,3 @@ const Header = (props: HeaderProps) => (
 
 export default Header;
 
-const HeaderSection = styled.header`
-    margin-bottom: 10px;
-`;
-
-const HeaderTitle = styled.h1`
-    margin-bottom: 10px;
-`;

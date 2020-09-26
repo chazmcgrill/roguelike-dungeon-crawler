@@ -11,10 +11,10 @@
 // // create x amount of rooms random size random position
 // let rooms = Array.apply(null, Array(GAME.ROOMS)).map((room, i) => {
 
-//     const height = this._random(5, 7);
-//     const width = this._random(5, 7);
+//     const height = this.random(5, 7);
+//     const width = this.random(5, 7);
 
-//     let spot = freeTiles[this._random(0, freeTiles.length)];
+//     let spot = freeTiles[this.random(0, freeTiles.length)];
 
 //     // adjust if over the GAME.WIDTH limit
 //     if (GAME.WIDTH - spot.col < width + 1) {

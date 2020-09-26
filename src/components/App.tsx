@@ -4,7 +4,7 @@ import DungeonBoard from './DungeonBoard';
 import StartScreen from './StartScreen';
 import Header from './Header';
 
-import { _random } from '../helpers/helpers';
+import { random } from '../helpers/helpers';
 import { TILE, PLAYER_INIT, WEAPONS } from '../globals/game';
 import { MAPS } from '../globals/maps';
 import { createEmptyGrid, getIdsForRooms, createEnemyObjects, getEmptyFloorTileId } from '../utils';
@@ -128,8 +128,8 @@ class App extends Component<{}, AppState> {
                 let { enemies } = this.state;
 
                 const enemyIndex = enemies.findIndex(e => e.tileId === nextSpot);
-                const enemyDamage = _random(0, enemies[enemyIndex].strength / 2);
-                const playerDamage = _random(0, (WEAPONS[player.weaponIndex].strength + player.level) / 2);
+                const enemyDamage = random(0, enemies[enemyIndex].strength / 2);
+                const playerDamage = random(0, (WEAPONS[player.weaponIndex].strength + player.level) / 2);
 
                 player.health -= enemyDamage;
                 enemies[enemyIndex].health -= playerDamage;

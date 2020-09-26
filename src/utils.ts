@@ -1,7 +1,7 @@
 import { MAPS, LevelMap } from "./globals/maps";
 import { TILE } from "./globals/game";
 import { GridItem, Enemy } from "./components/App";
-import { findIndex, random } from "./helpers/helpers";
+import { findIndex, random } from "./utils/helpers";
 
 export function createEmptyGrid(mapNo: number): GridItem[] {
     const width = MAPS[mapNo].width;

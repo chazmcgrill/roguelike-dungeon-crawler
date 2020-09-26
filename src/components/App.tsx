@@ -1,14 +1,15 @@
-import React, { Component, Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import DungeonStatus from './DungeonStatus';
 import DungeonBoard from './DungeonBoard';
 import StartScreen from './StartScreen';
 import Header from './Header';
 
-import { random } from '../helpers/helpers';
+import { random } from '../utils/helpers';
 import { TILE, PLAYER_INIT, WEAPONS } from '../globals/game';
 import { MAPS } from '../globals/maps';
-import { createEmptyGrid, getIdsForRooms, createEnemyObjects, getEmptyFloorTileId } from '../utils';
+import { createEmptyGrid } from '../utils';
 import Footer from './Footer';
+import { createDungeon } from '../utils/createDungeon';
 
 interface AppState {
     grid: GridItem[];
@@ -41,42 +42,6 @@ export interface GridItem {
     col: number;
 }
 
-const createDungeon = (mapNo: number, currentGrid: GridItem[]): any => {
-    const currentMap = MAPS[mapNo];
-    let floorIdArray = getIdsForRooms(currentMap);
-    const enemies = createEnemyObjects(currentMap);
-
-    // add the tunnels
-    floorIdArray = floorIdArray.concat(currentMap.tunnels);
-
-    // create the new state with updated tiles
-    const grid = currentGrid.map((gridItem) => {
-        const tile = floorIdArray.includes(gridItem.id) ? TILE.FLOOR : TILE.WALL;
-        return { ...gridItem, tile }
-    });
-
-    const items = [TILE.PLAYER].concat(currentMap.items);
-    let playerPosition = 0;
-
-    // iterate over items if player store the index.
-    items.forEach(item => {
-        const index = getEmptyFloorTileId(floorIdArray, grid);
-        grid[index].tile = item;
-        if (item === TILE.PLAYER) playerPosition = index;
-    });
-
-    // iterate over enemies array assign location and set tile
-    enemies.forEach((item, i) => {
-        const index = getEmptyFloorTileId(floorIdArray, grid);
-        grid[index].tile = TILE.ENEMY;
-        enemies[i].tileId = index;
-    });
-
-    return {
-        grid, playerPosition, enemies, mapNo,
-    }
-};
-
 const App = () => {
     const [state, setState] = useState<AppState>({
         grid: [],
@@ -100,6 +65,7 @@ const App = () => {
     }, []);
 
     const handleKeyDown = useCallback((e: KeyboardEvent): void => {
+        e.preventDefault();
         const key = e.keyCode;
         const currentMap = MAPS[state.mapNo];
         let { player } = state;

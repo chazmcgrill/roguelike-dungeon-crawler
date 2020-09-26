@@ -10,10 +10,10 @@ export const TILE = {
 export const TILE_SETUP = [
     { tileId: 0, name: "wall", color: "#6E7783" },
     { tileId: 1, name: "floor", color: "#D8E6E7" },
-    { tileId: 2, name: "player", color: "#86CEF9" },
-    { tileId: 3, name: "enemy", color: "#77AAAD" },
-    { tileId: 4, name: "weapon", color: "#547CFF" },
-    { tileId: 5, name: "health", color: "#E40409" },
+    { tileId: 2, name: "player", color: "#9C66BD", icon: 'grimace' },
+    { tileId: 3, name: "enemy", color: "#204A4D", icon: 'bug' },
+    { tileId: 4, name: "weapon", color: "#547CFF", icon: 'box' },
+    { tileId: 5, name: "health", color: "#E40409", icon: 'heart' },
 ];
 
 export const PLAYER_INIT = {

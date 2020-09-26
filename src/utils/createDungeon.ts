@@ -3,7 +3,6 @@ import { TILE } from "../globals/game";
 import { MAPS } from "../globals/maps";
 import { createEnemyObjects, getEmptyFloorTileId, getIdsForRooms } from "../utils";
 
-
 export const createDungeon = (mapNo: number, currentGrid: GridItem[]): any => {
     const currentMap = MAPS[mapNo];
     let floorIdArray = getIdsForRooms(currentMap);

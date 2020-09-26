@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, useCallback, useEffect, useState } from 'react';
 import DungeonStatus from './DungeonStatus';
 import DungeonBoard from './DungeonBoard';
 import StartScreen from './StartScreen';
@@ -41,8 +41,44 @@ export interface GridItem {
     col: number;
 }
 
-class App extends Component<{}, AppState> {
-    state: AppState = {
+const createDungeon = (mapNo: number, currentGrid: GridItem[]): any => {
+    const currentMap = MAPS[mapNo];
+    let floorIdArray = getIdsForRooms(currentMap);
+    const enemies = createEnemyObjects(currentMap);
+
+    // add the tunnels
+    floorIdArray = floorIdArray.concat(currentMap.tunnels);
+
+    // create the new state with updated tiles
+    const grid = currentGrid.map((gridItem) => {
+        const tile = floorIdArray.includes(gridItem.id) ? TILE.FLOOR : TILE.WALL;
+        return { ...gridItem, tile }
+    });
+
+    const items = [TILE.PLAYER].concat(currentMap.items);
+    let playerPosition = 0;
+
+    // iterate over items if player store the index.
+    items.forEach(item => {
+        const index = getEmptyFloorTileId(floorIdArray, grid);
+        grid[index].tile = item;
+        if (item === TILE.PLAYER) playerPosition = index;
+    });
+
+    // iterate over enemies array assign location and set tile
+    enemies.forEach((item, i) => {
+        const index = getEmptyFloorTileId(floorIdArray, grid);
+        grid[index].tile = TILE.ENEMY;
+        enemies[i].tileId = index;
+    });
+
+    return {
+        grid, playerPosition, enemies, mapNo,
+    }
+};
+
+const App = () => {
+    const [state, setState] = useState<AppState>({
         grid: [],
         player: {
             health: 0,
@@ -54,64 +90,28 @@ class App extends Component<{}, AppState> {
         mapNo: 0,
         playerPosition: 0,
         enemies: [],
-    }
+    });
 
-    componentDidMount() {
-        window.addEventListener('keydown', this.handleKeyDown);
-        this.gameInit();
-    }
+    const gameInit = useCallback((): void => {
+        const mapNumber = 0;
+        const grid = createEmptyGrid(mapNumber);
+        const newState = createDungeon(mapNumber, grid);
+        setState({ ...newState, gameOpen: false, player: { ...PLAYER_INIT } });
+    }, []);
 
-    componentWillUnmount() {
-        window.removeEventListener('keydown', this.handleKeyDown);
-    }
-
-    createDungeon = (mapNo: number): void => {
-        const currentMap = MAPS[mapNo];
-        let floorIdArray = getIdsForRooms(currentMap);
-        const enemies = createEnemyObjects(currentMap);
-
-        // add the tunnels
-        floorIdArray = floorIdArray.concat(currentMap.tunnels);
-
-        // create the new state with updated tiles
-        const grid = this.state.grid.map((gridItem) => {
-            const tile = floorIdArray.includes(gridItem.id) ? TILE.FLOOR : TILE.WALL;
-            return { ...gridItem, tile }
-        });
-
-        const items = [TILE.PLAYER].concat(currentMap.items);
-        let playerPosition = 0;
-
-        // iterate over items if player store the index.
-        items.forEach(item => {
-            const index = getEmptyFloorTileId(floorIdArray, grid);
-            grid[index].tile = item;
-            if (item === TILE.PLAYER) playerPosition = index;
-        });
-
-        // iterate over enemies array assign location and set tile
-        enemies.forEach((item, i) => {
-            const index = getEmptyFloorTileId(floorIdArray, grid);
-            grid[index].tile = TILE.ENEMY;
-            enemies[i].tileId = index;
-        });
-
-        this.setState({ grid, playerPosition, enemies, mapNo });
-    }
-
-    handleKeyDown = (e: KeyboardEvent): void => {
+    const handleKeyDown = useCallback((e: KeyboardEvent): void => {
         const key = e.keyCode;
-        const currentMap = MAPS[this.state.mapNo];
-        let { player } = this.state;
+        const currentMap = MAPS[state.mapNo];
+        let { player } = state;
 
         if (key >= 37 && key <= 40) {
-            let { playerPosition, grid } = this.state;
+            let { playerPosition, grid } = state;
             const keyCodes = {
                 37: playerPosition - 1,
                 38: playerPosition - currentMap.width,
                 39: playerPosition + 1,
                 40: playerPosition + currentMap.width,
-            } as { [key: number]: number};
+            } as { [key: number]: number };
 
             const nextSpot = keyCodes[key];
             const nextTile = grid[nextSpot].tile;
@@ -125,7 +125,7 @@ class App extends Component<{}, AppState> {
                 player.health += 50;
                 playerPosition = nextSpot;
             } else if (nextTile === TILE.ENEMY) {
-                let { enemies } = this.state;
+                let { enemies } = state;
 
                 const enemyIndex = enemies.findIndex(e => e.tileId === nextSpot);
                 const enemyDamage = random(0, enemies[enemyIndex].strength / 2);
@@ -136,12 +136,12 @@ class App extends Component<{}, AppState> {
 
                 if (player.health < 1) {
                     console.log("dead");
-                    this.gameInit();
+                    gameInit();
                     return;
                 }
 
                 if (enemies[enemyIndex].health > 0) {
-                    this.setState({ player, enemies });
+                    setState({ ...state, player, enemies });
                     return;
                 }
 
@@ -153,8 +153,8 @@ class App extends Component<{}, AppState> {
                 const enemiesLeft = enemies.filter(e => e.health > 0).length;
 
                 if (enemiesLeft === 0) {
-                    const nextLevel = this.state.mapNo + 1;
-                    this.createDungeon(nextLevel);
+                    const nextLevel = state.mapNo + 1;
+                    createDungeon(nextLevel, grid);
                     return;
                 }
             }
@@ -172,35 +172,38 @@ class App extends Component<{}, AppState> {
                 return { ...gridItem, tile };
             });
 
-            this.setState({ grid, playerPosition, player });
+            setState({ ...state, grid, playerPosition, player });
         }
-    }
+    }, [gameInit, state])
 
-    gameInit = (): void => {
-        const mapNumber = 0;
-        const grid = createEmptyGrid(mapNumber);
-        this.setState({ grid, player: { ...PLAYER_INIT } }, () => this.createDungeon(mapNumber));
-    }
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [handleKeyDown]);
 
-    render() {
-        const { gameOpen, grid, player} = this.state;
+    useEffect(() => {
+        gameInit();
+    }, [gameInit])
 
-        return (
-            <Fragment>
-                <Header newGameClick={() => this.gameInit()} />
-                <DungeonStatus
-                    status={player}
-                    weapon={WEAPONS[player.weaponIndex]}
-                />
+    const { gameOpen, grid, player } = state;
 
-                {!gameOpen && <StartScreen handleStartClick={() => this.setState({ gameOpen: true })} />}
+    return (
+        <Fragment>
+            <Header newGameClick={() => gameInit()} />
+            <DungeonStatus
+                status={player}
+                weapon={WEAPONS[player.weaponIndex]}
+            />
 
-                <DungeonBoard dsGrid={grid} />
+            {!gameOpen && <StartScreen handleStartClick={() => setState({ ...state, gameOpen: true })} />}
 
-                <Footer />
-            </Fragment>
-        )
-    }
+            <DungeonBoard dsGrid={grid} />
+
+            <Footer />
+        </Fragment>
+    )
 }
 
 export default App;
